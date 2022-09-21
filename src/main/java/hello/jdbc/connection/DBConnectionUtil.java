@@ -21,5 +21,4 @@ public class DBConnectionUtil {
             throw new IllegalStateException(e); //왜 바꾸는지 알았는데..
         }
     }
-
 }
