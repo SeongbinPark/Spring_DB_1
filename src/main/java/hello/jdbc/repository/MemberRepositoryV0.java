@@ -40,7 +40,6 @@ public class MemberRepositoryV0 {
         }
 
 
-
     }
 
     public Member findById(String memberId) throws SQLException {
@@ -91,7 +90,7 @@ public class MemberRepositoryV0 {
         } catch (SQLException e) {
             log.error("db error", e);
             throw e;
-        }finally {
+        } finally {
             close(con, pstmt, null);
         }
     }
@@ -108,7 +107,7 @@ public class MemberRepositoryV0 {
         } catch (SQLException e) {
             log.error("db error", e);
             throw e;
-        }finally {
+        } finally {
             close(con, pstmt, null);
         }
     }
