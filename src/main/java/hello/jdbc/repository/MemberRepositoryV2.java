@@ -1,6 +1,5 @@
 package hello.jdbc.repository;
 
-import hello.jdbc.connection.DBConnectionUtil;
 import hello.jdbc.domain.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,11 +10,11 @@ import java.sql.*;
 import java.util.NoSuchElementException;
 
 /**
- * JDBC - DataSource 사용, JdbcUtils 사용
+ * JDBC - Connection을 파라미터로 넘기는 예제
  */
 @Slf4j
 @RequiredArgsConstructor
-public class MemberRepositoryV1 {
+public class MemberRepositoryV2 {
 
     private final DataSource dataSource;
 
@@ -82,6 +81,40 @@ public class MemberRepositoryV1 {
         }
     }
 
+    //커넥션을 파라미터로
+    public Member findById(Connection con, String memberId) throws SQLException {
+        String sql = "select * from member where member_id=?";//항상 파라미터바인딩해주자.
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, memberId);
+
+            rs = pstmt.executeQuery();//select는 executeQuery로 실행
+            //이때 결과를 담고있는 통인 ResultSet을 반환해줌.
+
+            //rs에서 값을 꺼내자
+            //rs내부에 커서가 있는데 이 커서를 한번 next해줘야 실제 값이 있다.
+            //커서가 처음에는 아무것도 안가르킴.(next로 넘겼을 때 데이터가 있으면 true)
+            if (rs.next()) {
+                Member member = new Member();
+                member.setMemberId(rs.getString("member_id"));
+                member.setMoney(rs.getInt("money"));
+                return member;
+            } else { //next하고 커서가 가리키는 데이터가 없을 경우
+                throw new NoSuchElementException("member not found memberId=" + memberId);
+            }
+        } catch (SQLException e) {
+            log.error("db error", e);
+            throw e;
+        } finally {
+            //커넥션은 여기서 닫지 않는다.
+            JdbcUtils.closeResultSet(rs);
+            JdbcUtils.closeStatement(pstmt);
+        }
+    }
+
     public void update(String memberId, int money) throws SQLException {
         String sql = "update member set money=? where member_id=?";
 
@@ -99,6 +132,28 @@ public class MemberRepositoryV1 {
             throw e;
         } finally {
             close(con, pstmt, null);
+        }
+    }
+
+    //커넥션을 파라미터로
+    public void update(Connection con, String memberId, int money) throws SQLException {
+        String sql = "update member set money=? where member_id=?";
+
+        PreparedStatement pstmt = null;
+
+        try {
+            //con = getConnection();
+            //getConnection도 지워야한다. -> 새로운 커넥션 가져온다.
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, money);
+            pstmt.setString(2, memberId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            log.error("db error", e);
+            throw e;
+        } finally {
+            JdbcUtils.closeStatement(pstmt);
+
         }
     }
 

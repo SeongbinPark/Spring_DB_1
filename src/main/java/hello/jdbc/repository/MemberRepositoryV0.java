@@ -20,7 +20,7 @@ public class MemberRepositoryV0 {
 
         try {
             con = getConnection();
-            con.prepareStatement(sql); // 여기서 CheckedException인 SQLException이 올라온다.
+            pstmt = con.prepareStatement(sql); // 여기서 CheckedException인 SQLException이 올라온다.
             pstmt.setString(1, member.getMemberId());//sql에 대한 파라미터 바인딩
             pstmt.setInt(2, member.getMoney());//sql에 대한 파라미터 바인딩 (?, ?) 에 바인딩
             pstmt.executeUpdate();//쿼리가 DB에 실제 실행 (업데이트에 영향받은 row 수 반환)
