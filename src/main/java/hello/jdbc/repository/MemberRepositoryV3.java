@@ -45,10 +45,7 @@ public class MemberRepositoryV3 {
 //            pstmt.close(); // 만약 여기서 Exception 터지면 이게 위 클래스로 나가고 con.close(); 가 호출 안됨.
 //            con.close();
             close(con, pstmt, null);
-
         }
-
-
     }
 
     public Member findById(String memberId) throws SQLException {
