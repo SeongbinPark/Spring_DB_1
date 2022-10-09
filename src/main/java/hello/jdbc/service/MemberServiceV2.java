@@ -24,13 +24,7 @@ public class MemberServiceV2 {
         Connection con = dataSource.getConnection();
         try {
             con.setAutoCommit(false);//트랜잭션 시작
-            //비지니스로직
-            Member fromMember = memberRepository.findById(con, fromId);
-            Member toMember = memberRepository.findById(con, toId);
-
-            memberRepository.update(con, fromId, fromMember.getMoney() - money);//보내는사람 돈 감소
-            validation(toMember);//문제 생기면 두번째 못 넘어가는 상황 연출
-            memberRepository.update(con, toId, toMember.getMoney() + money);//받는사람 돈 증가
+            bizLogic(fromId, toId, money, con);
             con.commit(); // 성공시 커밋
         } catch (Exception e) {
             con.rollback(); // 실패시 롤백
@@ -47,6 +41,16 @@ public class MemberServiceV2 {
                 }
             }
         }
+    }
+
+    private void bizLogic(String fromId, String toId, int money, Connection con) throws SQLException {
+        //비지니스로직
+        Member fromMember = memberRepository.findById(con, fromId);
+        Member toMember = memberRepository.findById(con, toId);
+
+        memberRepository.update(con, fromId, fromMember.getMoney() - money);//보내는사람 돈 감소
+        validation(toMember);//문제 생기면 두번째 못 넘어가는 상황 연출
+        memberRepository.update(con, toId, toMember.getMoney() + money);//받는사람 돈 증가
     }
 
     private void validation(Member toMember) {
